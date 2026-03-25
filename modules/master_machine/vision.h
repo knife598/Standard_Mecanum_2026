@@ -28,7 +28,7 @@ typedef struct __attribute__((packed))
     float pitch;
     float pitch_vel;
     float bullet_speed;
-    uint16_t bullet_count; // 子弹累计发送次数
+    uint16_t bullet_count; // 子弹累计发送次数, uint16_t按协议自然回绕
     uint16_t crc16;
 } GimbalToVision_s;
 #pragma pack()
