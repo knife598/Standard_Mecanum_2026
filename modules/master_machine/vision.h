@@ -7,7 +7,7 @@
 #pragma pack(1)
 typedef struct __attribute__((packed))
 {
-    uint8_t head[2];
+    uint8_t head[2]; // 固定为'S','P'
     uint8_t mode; // 0: 不控制, 1: 控制云台但不开火，2: 控制云台且开火
     float yaw;
     float yaw_vel;
@@ -20,7 +20,7 @@ typedef struct __attribute__((packed))
 
 typedef struct __attribute__((packed))
 {
-    uint8_t head[2];
+    uint8_t head[2]; // 固定为'S','P'
     uint8_t mode; // 0: 空闲, 1: 自瞄, 2: 小符, 3: 大符
     float q[4];   // wxyz顺序
     float yaw;
@@ -42,6 +42,7 @@ typedef GimbalToVision_s Vision_Send_s;
 
 _Static_assert(sizeof(GimbalToVision_s) <= 64, "GimbalToVision_s must be <=64 bytes");
 _Static_assert(sizeof(VisionToGimbal_s) <= 64, "VisionToGimbal_s must be <=64 bytes");
+// 64字节上限来自协议要求，需保证单帧长度不超过通信链路约束。
 
 /**
  * @brief 调用此函数初始化和视觉的串口通信

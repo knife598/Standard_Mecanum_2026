@@ -16,6 +16,7 @@
 #include "fifo.h"
 #include "crc16.h"
 #include "string.h"
+#include "stddef.h"
 static Vision_Recv_s recv_data;
 static Vision_Send_s send_data;
 static DaemonInstance *vision_daemon_instance;
@@ -29,9 +30,9 @@ static uint8_t VisionPacketIsValid(const uint8_t *buf, uint16_t len)
     if (buf[0] != 'S' || buf[1] != 'P')
         return 0;
 
-    uint16_t expected_crc = crc_16(buf, sizeof(VisionToGimbal_s) - sizeof(uint16_t));
+    uint16_t expected_crc = crc_16(buf, offsetof(VisionToGimbal_s, crc16));
     uint16_t recv_crc = 0;
-    memcpy(&recv_crc, &buf[sizeof(VisionToGimbal_s) - sizeof(uint16_t)], sizeof(uint16_t));
+    memcpy(&recv_crc, &buf[offsetof(VisionToGimbal_s, crc16)], sizeof(uint16_t));
     return expected_crc == recv_crc;
 }
 
@@ -40,7 +41,7 @@ static void VisionUpdateSendCrc(void)
     send_data.head[0] = 'S';
     send_data.head[1] = 'P';
     send_data.bullet_count++;
-    send_data.crc16 = crc_16((uint8_t *)&send_data, sizeof(GimbalToVision_s) - sizeof(uint16_t));
+    send_data.crc16 = crc_16((uint8_t *)&send_data, offsetof(GimbalToVision_s, crc16));
 }
 /**
  * @brief 离线回调函数,将在daemon.c中被daemon task调用
