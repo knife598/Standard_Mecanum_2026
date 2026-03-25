@@ -15,8 +15,8 @@
 #include "robot_def.h"
 #include "fifo.h"
 #include "crc16.h"
-#include "string.h"
-#include "stddef.h"
+#include <string.h>
+#include <stddef.h>
 static Vision_Recv_s recv_data;
 static Vision_Send_s send_data;
 static DaemonInstance *vision_daemon_instance;
@@ -40,6 +40,7 @@ static void VisionUpdateSendCrc(void)
 {
     send_data.head[0] = 'S';
     send_data.head[1] = 'P';
+    // 协议字段为uint16_t, 按协议自然回绕计数
     send_data.bullet_count++;
     send_data.crc16 = crc_16((uint8_t *)&send_data, offsetof(GimbalToVision_s, crc16));
 }
