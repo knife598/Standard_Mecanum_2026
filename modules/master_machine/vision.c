@@ -23,7 +23,7 @@ static USARTInstance *vision_usart_instance;
 
 static uint8_t VisionPacketIsValid(const uint8_t *buf, uint16_t len)
 {
-    if (buf == NULL || len < sizeof(VisionToGimbal_s))
+    if (buf == NULL || len != sizeof(VisionToGimbal_s))
         return 0;
 
     if (buf[0] != 'S' || buf[1] != 'P')
@@ -106,7 +106,7 @@ static void DecodeVision()
 void VisionSend()
 {
     VisionUpdateSendCrc();
-    USARTSend(vision_usart_instance, (uint8_t *)&send_data, sizeof(GimbalToVision_s), USART_TRANSFER_DMA); // 和视觉通信使用IT,防止和接收使用的DMA冲突
+    USARTSend(vision_usart_instance, (uint8_t *)&send_data, sizeof(GimbalToVision_s), USART_TRANSFER_DMA); // 和视觉通信使用DMA
     // 此处为HAL设计的缺陷,DMASTOP会停止发送和接收,导致再也无法进入接收中断.
     // 也可在发送完成中断中重新启动DMA接收,但较为复杂.因此,此处使用IT发送.
     // 若使用了daemon,则也可以使用DMA发送.
