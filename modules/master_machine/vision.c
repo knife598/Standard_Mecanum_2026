@@ -30,7 +30,8 @@ static uint8_t VisionPacketIsValid(const uint8_t *buf, uint16_t len)
         return 0;
 
     uint16_t expected_crc = crc_16((uint8_t *)buf, sizeof(VisionToGimbal_s) - sizeof(uint16_t));
-    uint16_t recv_crc = ((uint16_t)buf[sizeof(VisionToGimbal_s) - 1] << 8) | buf[sizeof(VisionToGimbal_s) - 2];
+    uint16_t recv_crc = 0;
+    memcpy(&recv_crc, &buf[sizeof(VisionToGimbal_s) - sizeof(uint16_t)], sizeof(uint16_t));
     return expected_crc == recv_crc;
 }
 
