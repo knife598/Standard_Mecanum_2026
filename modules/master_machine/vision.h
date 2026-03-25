@@ -2,46 +2,45 @@
 #define VISION_H
 
 #include "bsp_usart.h"
-#include "seasky_protocol.h"
-
-#define VISION_RECV_SIZE 18u // 当前为固定值,36字节
-#define VISION_SEND_SIZE 36u
+#include <stdint.h>
 
 #pragma pack(1)
-typedef struct
+typedef struct __attribute__((packed))
 {
-    float pitch;
+    uint8_t head[2];
+    uint8_t mode; // 0: 不控制, 1: 控制云台但不开火，2: 控制云台且开火
     float yaw;
-    uint16_t coordinate_X;
-    uint16_t coordinate_Y;
-} Vision_Recv_s;
+    float yaw_vel;
+    float yaw_acc;
+    float pitch;
+    float pitch_vel;
+    float pitch_acc;
+    uint16_t crc16;
+} VisionToGimbal_s;
 
-typedef enum {
-    COLOR_NONE = 0,
-    COLOR_BLUE = 1,
-    COLOR_RED  = 2,
-} Enemy_Color_e;
-
-typedef enum {
-    VISION_MODE_AIM        = 0,
-    VISION_MODE_SMALL_BUFF = 1,
-    VISION_MODE_BIG_BUFF   = 2
-} Work_Mode_e;
-
-typedef enum {
-    BULLET_SPEED_NONE = 0,
-    BIG_AMU_16        = 16,
-    SMALL_AMU_30      = 30,
-} Bullet_Speed_limit_e;
-
-typedef struct
+typedef struct __attribute__((packed))
 {
-    Enemy_Color_e enemy_color;
-    Work_Mode_e work_mode;
-    Bullet_Speed_limit_e bullet_Speed_limit;
-    float bullet_speed_current;
-} Vision_Send_s;
+    uint8_t head[2];
+    uint8_t mode; // 0: 空闲, 1: 自瞄, 2: 小符, 3: 大符
+    float q[4];   // wxyz顺序
+    float yaw;
+    float yaw_vel;
+    float pitch;
+    float pitch_vel;
+    float bullet_speed;
+    uint16_t bullet_count; // 子弹累计发送次数
+    uint16_t crc16;
+} GimbalToVision_s;
 #pragma pack()
+
+typedef VisionToGimbal_s Vision_Recv_s;
+typedef GimbalToVision_s Vision_Send_s;
+
+#define VISION_RECV_SIZE ((uint16_t)sizeof(VisionToGimbal_s))
+#define VISION_SEND_SIZE ((uint16_t)sizeof(GimbalToVision_s))
+
+_Static_assert(sizeof(GimbalToVision_s) <= 64, "GimbalToVision_s must be <=64 bytes");
+_Static_assert(sizeof(VisionToGimbal_s) <= 64, "VisionToGimbal_s must be <=64 bytes");
 
 /**
  * @brief 调用此函数初始化和视觉的串口通信
@@ -55,15 +54,6 @@ Vision_Recv_s *VisionInit(UART_HandleTypeDef *_handle);
  *
  */
 void VisionSend();
-
-/**
- * @brief 设置视觉发送标志位
- *
- * @param enemy_color
- * @param work_mode
- * @param bullet_speed
- */
-// void VisionSetFlag(Enemy_Color_e enemy_color, Work_Mode_e work_mode, Bullet_Speed_e bullet_speed);
 
 /**
  * @brief 设置发送数据的姿态部分
