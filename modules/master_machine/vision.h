@@ -33,6 +33,7 @@ typedef struct __attribute__((packed))
 } GimbalToVision_s;
 #pragma pack()
 
+// 兼容历史接口命名: Gimbal板接收来自Vision的数据,发送给Vision的数据
 typedef VisionToGimbal_s Vision_Recv_s;
 typedef GimbalToVision_s Vision_Send_s;
 

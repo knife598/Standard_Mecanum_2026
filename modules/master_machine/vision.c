@@ -23,15 +23,13 @@ static USARTInstance *vision_usart_instance;
 
 static uint8_t VisionPacketIsValid(const uint8_t *buf, uint16_t len)
 {
-    uint8_t crc_input[sizeof(VisionToGimbal_s) - sizeof(uint16_t)];
     if (buf == NULL || len != sizeof(VisionToGimbal_s))
         return 0;
 
     if (buf[0] != 'S' || buf[1] != 'P')
         return 0;
 
-    memcpy(crc_input, buf, sizeof(crc_input));
-    uint16_t expected_crc = crc_16(crc_input, sizeof(crc_input));
+    uint16_t expected_crc = crc_16(buf, sizeof(VisionToGimbal_s) - sizeof(uint16_t));
     uint16_t recv_crc = 0;
     memcpy(&recv_crc, &buf[sizeof(VisionToGimbal_s) - sizeof(uint16_t)], sizeof(uint16_t));
     return expected_crc == recv_crc;
